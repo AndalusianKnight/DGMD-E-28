@@ -90,21 +90,19 @@
         // Start game with PlayerX
         let currentPlayer = 'X'; 
         const NUM_SQUARES = 9;
-    
+        // Board Construction
         for (let i = 0; i < NUM_SQUARES; i++) {
             let square = document.createElement('div');
             square.className = 'square';
             square.id = 'sq' + i;
             container.appendChild(square);
         }
-    
         // Function to switch turns of the players
         function turnswitchPlayer() {
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
             // Update turn indicator
             turnIndicator.textContent = `${currentPlayer}'s Turn`;
         }
-    
         container.addEventListener('click', function(e) {
             if (e.target && e.target.nodeName === 'DIV' && e.target.classList.contains('square')) {
                 // Check if square is empty
