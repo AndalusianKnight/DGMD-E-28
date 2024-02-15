@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap" rel="stylesheet">
+    
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #274c43;
+            color: #fff;
+            font-family: "Fredericka the Great", serif;
+            position: relative;
+        }
+
+        .title {
+            margin-bottom: 50px;
+            font-size: 24px;
+        }
+
+        .tic-tac-toe {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin-top: 75px;
+            margin-bottom: 50px;
+
+        }
+
+        .square {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+        }
+
+        .square:hover {
+            background-color: #35695c;
+        }
+
+        .turn-indicator, .win-condition {
+            border: 2px solid #fff;
+            padding: 10px;
+            margin: 10px 0;
+            width: 200px;
+            text-align: center;
+        }
+
+        footer {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            text-align: left;
+            padding: 20px;
+            font-size: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Title -->
+    <div class="title">jesse's tic-tac-toe</div> 
+    <!-- Turn Indicator: Start with X's Turn -->
+    <div class="turn-indicator">X's Turn</div> 
+    <!-- Tic-tac-toe Board -->
+    <div class="tic-tac-toe"></div> 
+    <!-- Win Condition -->
+    <div class="win-condition">Win Condition: </div> 
+    <!-- Footer Information -->
+    <footer> 
+        <p>Created by Jesse Thé <br> Harvard Extension School - DGMD E-28: Assignment 2</p>
+    </footer>
+    <!-- JS Script to Generete Game Board-->
+    <script>
+        const container = document.querySelector('.tic-tac-toe');
+        const turnIndicator = document.querySelector('.turn-indicator');
+        // Start game with PlayerX
+        let currentPlayer = 'X'; 
+        const NUM_SQUARES = 9;
+    
+        for (let i = 0; i < NUM_SQUARES; i++) {
+            let square = document.createElement('div');
+            square.className = 'square';
+            square.id = 'sq' + i;
+            container.appendChild(square);
+        }
+    
+        // Function to switch turns of the players
+        function turnswitchPlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            // Update turn indicator
+            turnIndicator.textContent = `${currentPlayer}'s Turn`;
+        }
+    
+        container.addEventListener('click', function(e) {
+            if (e.target && e.target.nodeName === 'DIV' && e.target.classList.contains('square')) {
+                // Check if square is empty
+                if (e.target.textContent === '') {
+                    // Mark the square with X or O
+                    e.target.textContent = currentPlayer; 
+                    // Get square number
+                    let squareNumber = e.target.id.replace('sq', '');
+                    // Display popup with square number
+                    alert(`Square number: ${squareNumber}`);
+                    // Switch turns 
+                    turnswitchPlayer(); 
+                }
+            }
+        });
+    </script>    
+</body>
+</html>
