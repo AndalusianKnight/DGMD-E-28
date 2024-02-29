@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joe's Hotdogs</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+    }
+    .menu-container {
+        margin-bottom: 20px;
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 20px;
+    }
+    .menu-title {
+        font-size: 10px;
+        font-style: italic;
+    }
+    .menu-item {
+        margin: 5px 0;
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    h1 {
+        text-align: center;
+    }
+</style>
+<body>
+    <h1>Welcome to Joe's Hotdogs</h1>
+    <h2>Menu</h2>
+    <!-- Menu Display for JSON and Array of Objects -->
+    <div id="menuFromJson" class="menu-container">
+        <div class="menu-title">JSON</div>
+    </div>
+    <div id="menuFromArray" class="menu-container">
+        <div class="menu-title">Array of Objects</div>
+    </div>
+
+    <script>
+        // Part 1.1: Associative Array of items and prices
+        const menuItems = {
+            "hotdogs": 4.00,
+            "fries": 3.50,
+            "soda": 1.50,
+            "sauerkraut": 1.00
+        };
+
+        // Part 1.2: JSON Object
+        const menuJson = {
+            "menuItems": [
+                {"item": "hotdogs", "price": 4.00},
+                {"item": "fries", "price": 3.50},
+                {"item": "soda", "price": 1.50},
+                {"item": "sauerkraut", "price": 1.00}
+            ]
+        };
+
+        // Part 2.1: Display menu from JSON object
+        function displayMenuFromJson() {
+            const menuContainer = document.getElementById('menuFromJson');
+            // Loop through the menuItems array and display each item and price
+            menuJson.menuItems.forEach((menuItem) => {
+                const itemElement = document.createElement('div');
+                itemElement.textContent = `${menuItem.item}: $${menuItem.price}`;
+                menuContainer.appendChild(itemElement);
+            });
+        }
+
+        // Part 1.3: Array of Function Objects
+        function MenuItem(name, price) {
+            this.name = name;
+            this.price = price;
+        }
+
+        // Create an array of MenuItem objects
+        const menuArray = [
+            new MenuItem("hotdogs", 4.00),
+            new MenuItem("fries", 3.50),
+            new MenuItem("soda", 1.50),
+            new MenuItem("sauerkraut", 1.00)
+        ];
+
+        // Part 2.2: Display menu from array of function objects
+        function displayMenuFromArray() {
+            const menuContainer = document.getElementById('menuFromArray');
+            // Loop through the menuArray and display each item and price
+            menuArray.forEach((menuItem) => {
+                const itemElement = document.createElement('div');
+                itemElement.textContent = `${menuItem.name}: $${menuItem.price}`;
+                menuContainer.appendChild(itemElement);
+            });
+        }
+
+        // Call functions to display the menus
+        displayMenuFromJson();
+        displayMenuFromArray();
+    </script>
+</body>
+</html>
