@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordle Clone</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .cell {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #333;
+    font-size: 24px;
+    color: #fff;
+    background-color: #333333;
+  }
+  input[type="text"], button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+  }
+  button {
+    cursor: pointer;
+  }
+  input[type="text"] {
+    width: 200px;
+  }
+  #gameTitle {
+    font-size: 32px;
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  #message, #usedLetters, #stats {
+    color: #ffffff;
+  }
+  .win-animation {
+    animation: winAnimation 1s ease forwards;
+  }
+  @keyframes winAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .correct {
+    background-color: #4CAF50;
+  }
+  .misplaced {
+    background-color: #FFC107;
+  }
+  .incorrect {
+    background-color: #F44336;
+  }
+  @media (max-width: 700px) {
+    .cell {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="gameTitle">Wordle Clone</div> <!-- Game Title -->
+<label><input type="checkbox" id="debugMode"> Debug Mode</label><br> <!-- Debug Mode -->
+<div id="grid" class="grid"></div> <!-- Game Grid -->
+<input type="text" id="guessInput" maxlength="5" placeholder="Enter guess..."> <!-- Guess Input -->
+<button onclick="initiateGuessSubmission()">Guess</button> <!-- Guess Button -->
+<div id="usedLetters">Used Letters: </div> <!-- Used Letters -->
+<div id="message"></div> <!-- Message -->
+<div id="stats">Guesses Remaining: 6 | Wins: 0 | Losses: 0</div> <!-- Stats -->
+<button id="nextGameButton" onclick="nextGame()">Next Game</button> <!-- Next Game Button -->
+
+<script>
+let attempt = 0; // Number of attempts
+let usedLetters = ""; // Used letters
+let wins = 0; // Number of wins
+let losses = 0; // Number of losses
+let gameWon = false; // Game won flag
+let gameEnded = false; // Game ended flag
+const grid = document.getElementById("grid"); // Game grid
+const message = document.getElementById("message"); // Message
+const usedLettersElement = document.getElementById("usedLetters"); // Used letters
+const statsElement = document.getElementById("stats"); // Stats
+const debugModeCheckbox = document.getElementById("debugMode"); // Debug mode checkbox
+const guessInput = document.getElementById("guessInput"); // Guess input
+let answer = ""; // The word to guess
+
+// Event listener for the debug mode checkbox
+debugModeCheckbox.addEventListener('change', () => {
+  if(debugModeCheckbox.checked) {
+    console.log("Debug Mode ON: The answer is " + answer);
+  }
+});
+
+// Fetch a new word from the Datamuse API 
+// https://www.datamuse.com/api/
+function fetchNewWord() {
+  fetch('https://api.datamuse.com/words?sp=?????&max=1000') // Fetch a random 5-letter word
+    .then(response => response.json())
+    // Get a random word from the list
+    .then(data => {
+      const randomIndex = Math.floor(Math.random() * data.length);
+      answer = data[randomIndex].word.toUpperCase();
+      initGrid();
+    })
+    .catch(error => {
+      console.error('Failed to fetch word:', error);
+      message.textContent = "Failed to load a new word, please try again.";
+    });
+}
+
+// Validate the guess using Datamuse API
+// https://www.datamuse.com/api/
+function validateGuess(guess) {
+  fetch(`https://api.datamuse.com/words?sp=${guess}&md=d`) // Search for words that match the guess
+    .then(response => response.json())
+    // Check if the guess is a valid 5-letter word
+    .then(data => {
+      if (data.length > 0 && data[0].word === guess.toLowerCase()) {
+        submitGuess(guess.toUpperCase());
+      } else {
+        message.textContent = "Not a valid 5-letter word. Please try again.";
+      }
+    })
+    .catch(error => console.error('Error validating word:', error));
+}
+
+// Initiate the guess submission
+function initiateGuessSubmission() {
+  const guess = guessInput.value.toUpperCase();
+  if (guess.length === 5) {
+    validateGuess(guess.toLowerCase());
+  } else {
+    message.textContent = "Guess must be a 5 letter word.";
+  }
+}
+
+// Initialize the game grid
+function initGrid() {
+  grid.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 5; j++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.setAttribute("id", `cell-${i}-${j}`);
+      grid.appendChild(cell);
+    }
+  }
+  // Reset the game
+  attempt = 0;
+  usedLetters = "";
+  gameWon = false;
+  gameEnded = false;
+  usedLettersElement.textContent = "Used Letters: ";
+  message.textContent = "";
+  guessInput.value = "";
+  // Update the stats
+  updateStats();
+  // Debug mode
+  if (debugModeCheckbox.checked) {
+    alert("The answer is: " + answer);
+  }
+}
+
+// Update the game stats
+function updateStats() {
+  statsElement.textContent = `Guesses Remaining: ${6 - attempt} | Wins: ${wins} | Losses: ${losses}`;
+}
+
+// Submit the guess
+function submitGuess(guess) {
+  evaluateGuess(guess);
+}
+
+// Evaluate the guess
+function evaluateGuess(guess) {
+  for (let i = 0; i < 5; i++) {
+    const currentCell = document.getElementById(`cell-${attempt}-${i}`);
+    const letter = guess[i];
+    // Check if the letter is already used
+    if (!usedLetters.includes(letter)) {
+      usedLetters += letter + " ";
+      usedLettersElement.textContent = "Used Letters: " + usedLetters;
+    }
+    // Check if the letter is in the answer
+    if (answer.includes(letter)) {
+      if (answer[i] === letter) {
+        currentCell.classList.add("correct");
+      } else {
+        currentCell.classList.add("misplaced");
+      }
+    } else {
+      currentCell.classList.add("incorrect");
+    }
+    currentCell.textContent = letter;
+  }
+  // Check if the guess is correct
+  if (guess === answer) {
+    message.textContent = "Congratulations! You've guessed the word!";
+    triggerWinAnimation();
+    wins++;
+    gameWon = true;
+    gameEnded = true;
+    updateStats();
+    return;
+  }
+  // Check if the game is over
+  if (++attempt === 6) {
+    message.textContent = "Game Over. The correct word was " + answer;
+    gameEnded = true;
+    if (!gameWon) {
+      losses++;
+      updateStats();
+    }
+  }
+}
+
+// Start the next game
+function nextGame() {
+  if (!gameWon && attempt > 0 && !gameEnded) {
+    losses++;
+  }
+  fetchNewWord(); // Fetch a new word
+}
+
+// Trigger the win animation
+function triggerWinAnimation() {
+  message.classList.add("win-animation");
+  setTimeout(() => message.classList.remove("win-animation"), 1000); // Reset animation
+}
+
+fetchNewWord(); // Fetch a new word
+</script>
+</body>
+</html>
